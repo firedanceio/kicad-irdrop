@@ -41,7 +41,14 @@ def main(argv: list[str] | None = None) -> int:
     except ImportError:
         print("kicad-irdrop needs KiCad's pcbnew module: run it with the Python that ships with KiCad", file=sys.stderr)
         return 2
-    board = pcbnew.LoadBoard(a.board)
+    board, why = None, ""
+    try:
+        board = pcbnew.LoadBoard(a.board)
+    except Exception as e:                       # some KiCad versions raise, others return None
+        why = f": {e}"
+    if board is None:
+        print(f"could not load {a.board}{why}", file=sys.stderr)
+        return 2
     cu = [pcbnew.BOARD.GetStandardLayerName(l) for l in board.GetEnabledLayers().CuStack()]
     stack = read_stackup(a.board, cu)
     out, worst = [], 0

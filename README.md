@@ -26,6 +26,42 @@ pour that carries most of the current, from `--maps` (blue low, red high):
 
 ![Current density in the 1V0_SYS pour on In6](docs/antmicro-lpddr4-1v0-in6.png)
 
+## Example: a 12-layer board
+
+[Antmicro's DDR4 RDIMM tester](https://github.com/antmicro/data-center-dram-tester) (Apache-2.0; commit e7c85eb): a
+12-layer Kintex-7 board that drives a 72-bit registered DDR4 module. Its FPGA core rail, 1V0_SYS, leaves the
+regulator through R204, a 10 mOhm current-sense resistor, and feeds 25 balls of the FPGA, U15. Solved for 3 A:
+
+```bash
+git clone https://github.com/antmicro/data-center-dram-tester && cd data-center-dram-tester
+python3 -m kicad_irdrop data-center-rdimm-ddr4-tester.kicad_pcb --rail 1V0_SYS:R204:3:U15::1.0 --maps maps/
+```
+
+```
+1V0_SYS: 3 A from R204 to U15 | worst 17.0 mV at U15.C6, median 15.5 mV, R_eff 5.67 mOhm | budget 20.0 mV: ok
+  vias 45; 2 barrel segments over their IPC-2221 rating; busiest: 0.83 A @(145.9,85.375) In1.Cu-In2.Cu, 0.83 A @(145.9,85.375) F.Cu-In1.Cu, 0.55 A @(147.936,85.785) In1.Cu-In2.Cu
+  peak current density 87 A/mm2 on In2.Cu at (162.66,97.39)
+  loss by location: In2.Cu@162,97 1%, In2.Cu@156,99 1%, In2.Cu@162,99 1%, In2.Cu@160,99 1%, In2.Cu@160,97 1%, In2.Cu@163,99 1%
+```
+
+5.7 mOhm and 17 mV at 3 A, inside a 2 % budget. Two things stand out. The whole rail runs on one inner pour, In2,
+and the current reaches it through a handful of vias next to R204: the two busiest carry 0.83 A each, over their
+IPC-2221 rating for a 10 C rise. That is a warm spot to look at, not a failure. And the long L-shaped path from the
+regulator round to the FPGA is where the drop builds up, a little at a time, which is why no single location takes
+more than 1 %. At `--grid 0.025` the result is 5.58 mOhm, 1.6 % lower. The map of In2:
+
+![Current density in the 1V0_SYS pour on In2 of the DDR4 tester](docs/antmicro-ddr4-tester-1v0-in2.png)
+
+The board has net ties either side of R204 for its power monitor. Those are not a regulator feedback point, so no
+`SENSE` is given here: the drop reported is the drop from R204 to the balls.
+
+## Checked against another solver
+
+We solved a purpose-built 4-layer board with both kicad-irdrop and [padne](https://github.com/atx/padne), an
+independent finite-element DC solver for KiCad. With the same copper conductivity and via plating, they agree within
+0.5 % when a narrow track carries the loss and within about 2.5 % when vias and a notched pour do. The board, the
+numbers and the steps are in [docs/crosscheck](docs/crosscheck/README.md).
+
 ## Why we wrote it
 
 We were signing off an 8-layer board with a chip-down SoC. Our first power check walked the copper graph and rated
@@ -90,6 +126,10 @@ feature (a 0.1 mm neck, a via landing) dominates the path, and the finer grid is
 DC only: no inductance, no capacitors, no transient droop. Copper at 20 C, no solder or package resistance, equal
 current per load pad. Use it to compare layouts and find bottlenecks, then confirm on the bench (drop and load-step
 measured at the load's decoupling capacitors).
+
+## Validation
+
+What we tested before release, on which boards, and what it turned up: [VALIDATION.md](VALIDATION.md).
 
 ## License
 
