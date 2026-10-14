@@ -55,6 +55,19 @@ more than 1 %. At `--grid 0.025` the result is 5.58 mOhm, 1.6 % lower. The map o
 The board has net ties either side of R204 for its power monitor. Those are not a regulator feedback point, so no
 `SENSE` is given here: the drop reported is the drop from R204 to the balls.
 
+## Side by side
+
+<table>
+<tr><th>Antmicro LPDDR4 test board: 1V0_SYS on In6, 2 A</th><th>Antmicro DDR4 tester: 1V0_SYS on In2, 3 A</th></tr>
+<tr><td><img src="docs/antmicro-lpddr4-1v0-in6.png" alt="Current density in the LPDDR4 board's core-rail pour"></td>
+<td><img src="docs/antmicro-ddr4-tester-1v0-in2.png" alt="Current density in the DDR4 tester's core-rail pour"></td></tr>
+<tr><td>2.67 mOhm, 5.3 mV worst; no via over its rating</td><td>5.67 mOhm, 17.0 mV worst; two via barrels over their rating</td></tr>
+<tr><th>Cross-check board, kicad-irdrop</th><th>Same board, padne</th></tr>
+<tr><td><img src="docs/crosscheck/kicad-irdrop-In2.png" alt="kicad-irdrop map of the cross-check board"></td>
+<td><img src="docs/crosscheck/padne-In2.png" alt="padne map of the same board"></td></tr>
+<tr><td>6.1 mV worst, 3.04 mOhm</td><td>6.01 mV worst, 2.97 mOhm</td></tr>
+</table>
+
 ## Checked against another solver
 
 We solved a purpose-built 4-layer board with both kicad-irdrop and [padne](https://github.com/atx/padne), an

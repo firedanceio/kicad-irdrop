@@ -38,7 +38,7 @@ notched pour on an inner layer and a 3x3 load. Same copper conductivity (5.8e7 S
 | 0.5 mm neck (track dominates) | 12.23 / 12.18 mV | 12.21 / 12.17 mV | under 0.5 % |
 | 3.0 mm neck (vias and pour dominate) | 6.01 / 5.96 mV | 6.1 / 6.0 mV | about 2.5 % |
 
-Both put the peak current density at the notch corner. Getting padne to read the board took two workarounds, both on
+Both put the peak current density at the notch corner, and their maps of the pour match (side by side in docs/crosscheck). Getting padne to read the board took two workarounds, both on
 padne's input side: its bundled KiCad doesn't read the KiCad 10 file format, so `docs/crosscheck/to_kicad8.py` writes
 the board in KiCad 8 syntax; and padne skips a load pad whose centre sits on a via hole, so the test board uses short
 tracks to the vias. Everything needed to repeat it is in [docs/crosscheck](docs/crosscheck/README.md).

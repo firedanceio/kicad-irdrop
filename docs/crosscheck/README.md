@@ -27,6 +27,21 @@ the same near-equal split per pad that kicad-irdrop uses.
 The two agree within 0.5 % when the neck dominates and within about 2.5 % when the vias and the notched pour carry
 the loss. Both put the peak current density at the notch corner.
 
+## Side by side
+
+The PWR pour on In2 with a 3.0 mm neck, both drawn on kicad-irdrop's colour scale (log of current density, blue at
+1 A/mm2 or below, red at 316 A/mm2; grey is copper carrying under 1 A/mm2). padne's map is drawn from its exported
+mesh with `padne_map.py`.
+
+<table>
+<tr><th>kicad-irdrop (0.05 mm grid)</th><th>padne 0.3 (finite-element mesh)</th></tr>
+<tr><td><img src="kicad-irdrop-In2.png" alt="kicad-irdrop current density on In2 of the cross-check board"></td>
+<td><img src="padne-In2.png" alt="padne current density on In2 of the same board"></td></tr>
+</table>
+
+Both show the current crowding over the notch, the quiet corners, and the via fields at the source (left) and load
+(right).
+
 ## Reproduce
 
 ```bash
