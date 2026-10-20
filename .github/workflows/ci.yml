@@ -1,0 +1,35 @@
+name: CI
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    name: pytest on KiCad 10
+    runs-on: ubuntu-latest
+    # The solver tests build boards with KiCad's pcbnew module, which only ships with KiCad itself.
+    container:
+      image: kicad/kicad:10.0
+      options: --user root
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install pip and venv
+        run: |
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends python3-pip python3-venv
+      - name: Install kicad-irdrop
+        run: |
+          python3 -m venv --system-site-packages /opt/venv
+          /opt/venv/bin/python -m pip install '.[test,maps]'
+          /opt/venv/bin/python -c "import pcbnew; print('pcbnew', pcbnew.Version())"
+      - name: Run tests
+        run: /opt/venv/bin/python -m pytest -v -rs -p no:cacheprovider --junitxml=junit.xml
+      - name: Check that no test was skipped
+        shell: python3 {0}
+        run: |
+          import xml.etree.ElementTree as ET
+          root = ET.parse("junit.xml").getroot()
+          suite = root if root.tag == "testsuite" else root.find("testsuite")
+          tests, skipped = int(suite.get("tests")), int(suite.get("skipped"))
+          print(f"{tests} tests, {skipped} skipped")
+          if skipped or not tests:
+              raise SystemExit("the pcbnew tests must run on KiCad, not skip")
